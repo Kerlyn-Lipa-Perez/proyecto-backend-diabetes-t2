@@ -1,0 +1,23 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "Backend del proyecto de predicion de diabetes tipo 2 ",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "node  --trace-warnings --watch main.js",
+    "start": "node main.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "express": "^4.21.0",
+    "helmet": "^7.1.0",
+    "mongoose": "^8.7.0",
+    "morgan": "^1.10.0",
+    "pg": "^8.13.0"
+  }
+}
