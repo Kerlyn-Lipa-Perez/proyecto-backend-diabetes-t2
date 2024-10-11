@@ -4,16 +4,14 @@ import { AllUsersCtrl, CreateUserCtrl, DeleteUserByIdCtrl, FindUserByIdCtrl, Upd
 const userRoutes = Router();
 
 
-userRoutes.get("/users", AllUsersCtrl);
+userRoutes.get("/", AllUsersCtrl);
 
+userRoutes.get("/:id", FindUserByIdCtrl);
 
-userRoutes.post("/users", CreateUserCtrl);
+userRoutes.post("/", CreateUserCtrl);
 
-userRoutes.get("/users/:id", FindUserByIdCtrl);
+userRoutes.patch("/:id", UpdateUserByIdCtrl);
 
-userRoutes.put("/users/:id", UpdateUserByIdCtrl);
+userRoutes.delete("/:id", DeleteUserByIdCtrl);
 
-userRoutes.delete("/users/:id", DeleteUserByIdCtrl);
-
-
-export {userRoutes};
+export  {userRoutes};

@@ -18,8 +18,8 @@ CREATE TABLE "Pacientes" IF NOT EXISTS(
     "segundo_nombre" VARCHAR(255) NOT NULL,
     "fecha_nacimiento" DATE NOT NULL,
     "genero" ENUM("M","F") NOT NULL,
-    "created_at" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP NOT NULL DEFAULT ,
+    "createdAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP NOT NULL DEFAULT ,
 )
 
 CREATE TABLE "Predicciones" IF NOT EXISTS(
@@ -58,20 +58,21 @@ CREATE TABLE Usuarios (
     username VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
-    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (id_rol) REFERENCES roles (id) ON DELETE CASCADE
 );
 
 CREATE TABLE Pacientes (
     id SERIAL PRIMARY KEY,
     id_usuario INTEGER NOT NULL,
-    primer_nombre VARCHAR(255) NOT NULL,
-    segundo_nombre VARCHAR(255),
+    nombres VARCHAR(255) NOT NULL,
+    apellidos VARCHAR(255),
     fecha_nacimiento DATE NOT NULL,
     genero VARCHAR(10) NOT NULL,
     telefono VARCHAR(9),
-    fecha_creacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    fecha_actualizacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (id_usuario) REFERENCES Usuarios (id) ON DELETE CASCADE
 );
 
@@ -87,7 +88,8 @@ CREATE TABLE Historia_Clinica_Paciente (
     consumo_alcohol INTEGER,
     frecuencia_alcohol VARCHAR(50),
     creado_por INTEGER,
-    fecha_creacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (id_paciente) REFERENCES Pacientes (id) ON DELETE CASCADE,
     FOREIGN KEY (creado_por) REFERENCES Usuarios (id) ON DELETE CASCADE
 );

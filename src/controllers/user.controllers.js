@@ -1,18 +1,22 @@
-import { pool } from "../database/connection.js";
+
+import UserModel from "../models/user.model.js";
+
+
+// ------------- METODOS CRUD -------------//
 
 //GET /USERS
 export const AllUsersCtrl = async (_req, res) => {
   try {
     // Realiza la consulta para obtener todos los usuarios
-    const [users] = await pool.query(`SELECT * FROM usuarios`);
+    const usuarios = await UserModel.findAll()
 
     // Enviar respuesta con los datos de los usuarios
-    res.status(200).json(users);
+    res.json(usuarios);
 
   } catch (error) {
    
     console.log(error);
-    res.status(500).json({ message: "Error al obtener los usuarios." });
+    res.json({ message: "Error al obtener los usuarios." });
   }
 };
 
@@ -20,31 +24,45 @@ export const AllUsersCtrl = async (_req, res) => {
 export const CreateUserCtrl = async (req, res) => {
   try {
     //Crear usuario 
+    await UserModel.create(req.body);
+    /*
     const { email, password, username } = req.body;
 
     const [newUser] = await pool.query(
-      `INSERT INTO users (email, password, username) VALUES (?, ?, ?)`,
+      `INSERT INTO usuarios (email, password, username) VALUES (?, ?, ?)`,
       [email, password, username]
     );
 
     console.log(newUser);
 
     const [userEncontrado] = await pool.execute(
-      `SELECT * FROM users WHERE id = ?`,
+      `SELECT * FROM usuarios WHERE id = ?`,
       [newUser.insertId]
     );
-    res.status(201).json(userEncontrado[0]);
+    */
+
+    res.json({
+      "message":"Usuario creado correctamente."
+    });
+
   } catch (error) {
     console.log(error);
-    res.status(500).json({ message: "Error al crear usuario." });
+    res.status(500).json({ message: error.message });
   }
 };
 
 //GET USERS/:id
 export const FindUserByIdCtrl = async (req, res) => {
-  const userId = +req.params.id;
+
   try {
+
+    const usuario = await UserModel.findAll({
+      where :{
+        id: req.params.id
+      }
+    })
     //Encontrar usuario
+    /*
     const [UsuarioEncontrado] = await pool.execute(
       `SELECT * FROM users WHERE id = ?`,
       [userId]
@@ -55,19 +73,25 @@ export const FindUserByIdCtrl = async (req, res) => {
          message: "Usuario no encontrado" 
         });
     }
+    */
 
-    res.status(200).json(UsuarioEncontrado[0]);
+    res.json(usuario[0]);
 
   } catch (error) {
     console.log(error);
-    res.status(500).json({ message: "Error al obtener usuario." });
+    res.status(500).json({ message: error.message });
   }
 };
 
 //DELETE USERS/:id
 export const DeleteUserByIdCtrl = async (req, res) => {
-  const userId = +req.params.id;
   try {
+    await UserModel.destroy({
+      where:{id:req.params.id}
+    })
+    /*
+    const userId = +req.params.id;
+
     //Eliminar usuario
     const [UsuarioDeleted] = await pool.execute(
       `DELETE FROM users WHERE id = ?`,
@@ -79,13 +103,11 @@ export const DeleteUserByIdCtrl = async (req, res) => {
         message: "Usuario no encontrado",
       });
     }
+      */
     //Devolver mensaje de eliminación
-    res.status(203).json({
+    res.json({
       message: "Usuario eliminado correctamente",
     });
-
-    
-    
     
   } catch (error) {
     console.log(error);
@@ -95,33 +117,18 @@ export const DeleteUserByIdCtrl = async (req, res) => {
 
 //PATCH /USERS/:id
 export const UpdateUserByIdCtrl = async (req, res) => {
-  const userId = +req.params.id;
-  const { email, password, username } = req.body;
   try {
-    
-    //Actualizar usuario
-    const [UsuarioUpdated] = await pool.execute(
-      `UPDATE users SET email = ?, password = ?, username = ? WHERE id = ?`,
-      [email, password, username, userId]
-    );
+    await UserModel.update(req.body,{
+      where: {id:req.params.id}
+    })
 
-    if (UsuarioUpdated.affectedRows == 0) {
-      return res.status(404).json({
-        message: "Usuario no encontrado",
-      });
-    }
 
-    //Devolver datos del usuario actualizado
-    const [UsuarioEncontrado] = await pool.execute( 
-      `SELECT * FROM users WHERE id = ?`,
-      [userId]
-    );
-
-    res.status(201).json(UsuarioEncontrado[0]);
-
+    res.json({
+      "message":"Usuario actualizado correctamente."
+    });
   } catch (error) {
     console.log(error);
-     res.status(500).json({ message: "Error al actualizar usuario." });
+    res.status(500).json({ message: "Error al actualizar usuario." });
   }
 };
 

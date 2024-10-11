@@ -1,4 +1,4 @@
-import { UserModel } from "../models/user.model.js";
+
 import pkg from "bcryptjs";
 const { bcryptjs } = pkg;
 
@@ -13,8 +13,6 @@ const Register = async (req, res) => {
       return res.status(400).json({
         ok: false,
         message: "Faltan datos obligatorios.",
-        
-        
       });
     }
 
@@ -24,8 +22,8 @@ const Register = async (req, res) => {
         ok: false,
         message: "El nombre de usuario solo puede contener letras y números.",
       });
-    }
-    /*
+    };
+    
     const user = await UserModel.BuscarPorEmail(email);
     if (user) {
       return res.status(409).json({
@@ -33,17 +31,19 @@ const Register = async (req, res) => {
         message: "El email ya esta en uso.",
       });
     }
-    */
+    
+    
+    const saltos = await bcryptjs.genSaltSync(10);
+    var hash = bcryptjs.hashSync("B4c0//", salt);
 
-    //const saltos = await bcryptjs.genSaltSync(10);
-
-    //const hashedpassword = await bcryptjs.hash(password, saltos);
+    const hashedpassword = await bcryptjs.hash(password, saltos);
 
 
     const newUser = await UserModel.crearUsuario(
-      id_rol, username,
+      id_rol,
+      username,
       email,
-      password
+      hashedpassword
     );
 
     return res.status(201).json({ ok: true, msg: newUser });
@@ -54,7 +54,7 @@ const Register = async (req, res) => {
     console.log(error);
     return res.status(500).json({
       ok: false,
-      message: "Error al registrar usuario.",
+      message: error,
     });
   }
 };
