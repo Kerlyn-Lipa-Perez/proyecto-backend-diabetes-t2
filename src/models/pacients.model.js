@@ -1,5 +1,6 @@
 import db from "../database/db.js";
 import { DataTypes } from "@sequelize/core";
+import PrediccionModel from "./prediction.model.js";
 
 
 // Definición del modelo Paciente
@@ -20,7 +21,7 @@ const PacienteModel = db.define(
         model: "usuarios", // Relación con la tabla usuarios
         key: "id",
       },
-      onDelete: "CASCADE", // Si se elimina un usuario, se eliminan sus pacientes
+     
     },
     nombres: {
       type: DataTypes.STRING,
@@ -39,6 +40,10 @@ const PacienteModel = db.define(
     },
     telefono: {
       type: DataTypes.STRING(9),
+    },
+    DNI: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
     },
     createdAt: {
       type: DataTypes.DATE,

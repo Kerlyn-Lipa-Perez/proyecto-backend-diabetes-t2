@@ -21,7 +21,7 @@ const UserModel = db.define(
         model: "roles", // Nombre de la tabla a la que hace referencia
         key: "id", // Columna de la tabla 'roles' a la que se hace referencia
       },
-      onDelete: "CASCADE", // Comportamiento de eliminación en cascada
+      onDelete: "CASCADE", 
     },
     username: {
       type: DataTypes.STRING,
@@ -46,7 +46,7 @@ const UserModel = db.define(
     },
   },
   {
-    tableName: "usuarios", // Especifica la tabla de la base de datos
+    tableName: "usuarios", 
     timestamps: true, // Habilita createdAt y updatedAt automáticamente
   }
 );

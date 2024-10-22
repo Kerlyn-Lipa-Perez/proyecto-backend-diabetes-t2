@@ -14,4 +14,5 @@ userRoutes.patch("/:id", UpdateUserByIdCtrl);
 
 userRoutes.delete("/:id", DeleteUserByIdCtrl);
 
+
 export  {userRoutes};

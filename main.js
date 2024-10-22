@@ -3,11 +3,11 @@ import { PORT } from "./src/settings/environments.js";
 import db from "./src/database/db.js";
 import { userRoutes } from "./src/routes/user.routes.js";
 import { pacienteRoutes } from "./src/routes/paciente.routes.js";
+import { authRoutes } from "./src/routes/auth.routes.js";
 //Middlewares
 import cors from "cors";
-import helmet from "helmet";
 import morgan from "morgan";
-
+import jwt from "jsonwebtoken";
 
 const app = express();
 
@@ -15,12 +15,12 @@ const app = express();
 app.use(cors());
 app.use(morgan("dev"));
 app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(express.urlencoded({ extended: true }));
 
 //Rutas
 app.use("/api/users", userRoutes);
 app.use("/api/pacientes", pacienteRoutes);
-
+app.use("/api/", authRoutes);
 
 try {
     await db.authenticate()

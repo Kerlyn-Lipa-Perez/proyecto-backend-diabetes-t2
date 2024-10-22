@@ -1,5 +1,12 @@
 import { Sequelize } from "@sequelize/core";
 import { PostgresDialect } from "@sequelize/postgres";
+import {
+  DB_HOST,
+  DB_USER,
+  DB_PASSWORD,
+  DB_NAME,
+  DB_PORT,
+} from "../settings/environments.js";
 
 const db = new Sequelize({
   dialect:PostgresDialect,
@@ -12,4 +19,7 @@ const db = new Sequelize({
 
 });
 
+
+
 export default db;
+

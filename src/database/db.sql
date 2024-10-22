@@ -4,7 +4,7 @@ CREATE TABLE "users" IF NOT EXISTS (
     "email" VARCHAR(255) NOT NULL UNIQUE,
     "password" VARCHAR(255) NOT NULL,
     "created_at" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "type_user" VARCHAR(255) NOT NULL,
+    
     PRIMARY KEY ("id")
 );
 
@@ -18,6 +18,7 @@ CREATE TABLE "Pacientes" IF NOT EXISTS(
     "segundo_nombre" VARCHAR(255) NOT NULL,
     "fecha_nacimiento" DATE NOT NULL,
     "genero" ENUM("M","F") NOT NULL,
+    "DNI" INTEGER,
     "createdAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP NOT NULL DEFAULT ,
 )
@@ -84,9 +85,9 @@ CREATE TABLE Historia_Clinica_Paciente (
     antecedente_familiar BOOLEAN,
     alergias TEXT,
     consumo_tabaco INTEGER,
-    frecuencia_tabaco VARCHAR(50),
+    frecuencia_tabaco INTEGER,
     consumo_alcohol INTEGER,
-    frecuencia_alcohol VARCHAR(50),
+    frecuencia_alcohol INTEGER,
     creado_por INTEGER,
     createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -102,12 +103,12 @@ CREATE TABLE Predicciones (
     glucosa INTEGER,
     insulina INTEGER,
     fuma BOOLEAN,
-    frecuencia_fumar VARCHAR(50),
+    frecuencia_fumar BOOLEAN,
     duracion_fumar INTEGER,
-    nivel_actividad_fisica VARCHAR(50),
+    nivel_actividad_fisica BOOLEAN,
     frecuencia_actividad_fisica VARCHAR(50),
     consumo_alcohol BOOLEAN,
-    frecuencia_alcohol VARCHAR(50),
+    frecuencia_alcohol INTEGER,
     puntaje_riesgo DECIMAL(5, 2),
     nivel_riesgo VARCHAR(50),
     creado_por INTEGER,
