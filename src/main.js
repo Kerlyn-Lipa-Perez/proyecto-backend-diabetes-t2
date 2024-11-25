@@ -1,13 +1,14 @@
 import express from "express";
-import { PORT } from "./src/settings/environments.js";
-import db from "./src/database/db.js";
-import { userRoutes } from "./src/routes/user.routes.js";
-import { pacienteRoutes } from "./src/routes/paciente.routes.js";
-import { authRoutes } from "./src/routes/auth.routes.js";
-//Middlewares
+import db from "./database/db.js";
+import { userRoutes } from "./routes/user.routes.js";
+import { pacienteRoutes } from "./routes/paciente.routes.js";
+import { authRoutes } from "./routes/auth.routes.js";
+import { predictionRouter } from "./routes/prediction.routes.js";
+
+import {PORT} from "./settings/environments.js";
 import cors from "cors";
 import morgan from "morgan";
-import jwt from "jsonwebtoken";
+
 
 const app = express();
 
@@ -21,6 +22,10 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/api/users", userRoutes);
 app.use("/api/pacientes", pacienteRoutes);
 app.use("/api/", authRoutes);
+
+app.use("/api/", predictionRouter);
+
+
 
 try {
     await db.authenticate()

@@ -17,11 +17,6 @@ const PacienteModel = db.define(
     id_usuario: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      references: {
-        model: "usuarios", // Relación con la tabla usuarios
-        key: "id",
-      },
-     
     },
     nombres: {
       type: DataTypes.STRING,

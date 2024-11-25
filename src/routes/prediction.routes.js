@@ -1,8 +1,15 @@
 import { Router } from "express";
-import AllPrediccionCtrl from "../controllers/prediction.controller.js";
+import {
+  createPrediction,
+  getPatientPredictions,
+} from "../controllers/prediction.controller.js";
 
-const predictRoutes = Router();
 
-predictRoutes.post("/predict-diabetes",AllPrediccionCtrl);
+const predictionRouter = Router();
 
-export default predictRoutes;
+
+predictionRouter.post("/", createPrediction);
+predictionRouter.get("/patient/:patientId", getPatientPredictions);
+
+
+export  {predictionRouter};

@@ -1,7 +1,8 @@
 import db from "../database/db.js";
 import { DataTypes } from "@sequelize/core";
 
-import PacienteModel from "./pacients.model.js"; // Asegúrate de importar el modelo PrediccionModel
+import PacienteModel from "./pacients.model.js";
+
 const PrediccionModel = db.define(
   "predicciones",
   {
@@ -13,10 +14,7 @@ const PrediccionModel = db.define(
     id_paciente: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      references: {
-        model: "pacientes", // Nombre de la tabla
-        key: "id", // Columna de referencia
-      },
+
     },
     fecha_prediccion: {
       type: DataTypes.DATE,
@@ -45,10 +43,6 @@ const PrediccionModel = db.define(
     creado_por: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      references: {
-        model: "usuarios", // Relacionar con el modelo de Usuario
-        key: "id", // Referencia a la columna 'id' del Usuario
-      },
     },
     embarazos: {
       type: DataTypes.INTEGER,
@@ -68,9 +62,10 @@ const PrediccionModel = db.define(
     },
   },
   {
-    tableName: "predicciones", // Nombre de la tabla en la base de datos
-    timestamps: true, // Para incluir createdAt y updatedAt
+    tableName: "predicciones",
+    timestamps: false, // Deshabilitamos timestamps
   }
 );
+
 
 export default PrediccionModel;

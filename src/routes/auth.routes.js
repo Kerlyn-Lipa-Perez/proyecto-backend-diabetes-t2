@@ -8,6 +8,8 @@ authRoutes.post("/register", AuthController.Register);
 
 authRoutes.post("/login", AuthController.Login);
 
+authRoutes.get("/login", AuthController.Login);
+
 export { authRoutes };  
 
 //admin@example.com

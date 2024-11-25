@@ -4,57 +4,78 @@ import RoleModel from "./rol.model.js";
 import PacienteModel from "./pacients.model.js";
 import PrediccionModel from "./prediction.model.js";
 
-// Definir asociaciones
-UserModel.belongsTo(RoleModel, { foreignKey: "id_rol" });
-RoleModel.hasMany(UserModel, { foreignKey: "id_rol" });
+// Asociación entre Usuario y Rol
+UserModel.belongsTo(RoleModel, {
+  foreignKey: {
+    name: "id_rol",
+    allowNull: false,
+  },
+  as: "rol",
+});
 
-// Definir la relación uno a muchos entre Usuario y Paciente
+RoleModel.hasMany(UserModel, {
+  foreignKey: {
+    name: "id_rol",
+    allowNull: false,
+  },
+  as: "usuarios",
+});
+
+// Asociación entre Usuario y Paciente
 UserModel.hasMany(PacienteModel, {
-  foreignKey: "id_usuario",
-  sourceKey: "id",
+  foreignKey: {
+    name: "id_usuario",
+    allowNull: false,
+  },
+  as: "pacientes",
 });
 
 PacienteModel.belongsTo(UserModel, {
-  foreignKey: "id_usuario",
-  targetKey: "id",
+  foreignKey: {
+    name: "id_usuario",
+    allowNull: false,
+  },
+  as: "usuario",
 });
 
-// Establecer la relación de 1:N entre Paciente y Predicciones
+// Asociación entre Paciente y Predicciones
 PacienteModel.hasMany(PrediccionModel, {
-  foreignKey: 'id_paciente',
-  onUpdate: 'CASCADE',
-  onDelete: 'CASCADE',
+  foreignKey: {
+    name: "id_paciente",
+    allowNull: false,
+    onUpdate: "CASCADE",
+    onDelete: "CASCADE",
+  },
+  as: "predicciones",
 });
 
 PrediccionModel.belongsTo(PacienteModel, {
-  foreignKey: 'id_paciente',
+  foreignKey: {
+    name: "id_paciente",
+    allowNull: false,
+    onUpdate: "CASCADE",
+    onDelete: "CASCADE",
+  },
+  as: "paciente",
+});
+
+// Asociación entre Usuario y Predicciones (para el campo creado_por)
+UserModel.hasMany(PrediccionModel, {
+  foreignKey: {
+    name: "creado_por",
+    allowNull: false,
+  },
+  as: "prediccionesCreadas",
+});
+
+PrediccionModel.belongsTo(UserModel, {
+  foreignKey: {
+    name: "creado_por",
+    allowNull: false,
+  },
+  as: "creador",
 });
 
 
-// Asociación entre Usuario y Rol
-UserModel.belongsTo(RoleModel, { foreignKey: "id_rol" });
-RoleModel.hasMany(UserModel, { foreignKey: "id_rol" });
-
-// Asociación entre Usuario y Paciente
-UserModel.hasMany(PacienteModel, { foreignKey: "id_usuario" });
-PacienteModel.belongsTo(UserModel, { foreignKey: "id_usuario" });
-
-// Asociación entre Paciente y Predicciones
-PacienteModel.hasMany(PrediccionModel, { foreignKey: "id_paciente" });
-PrediccionModel.belongsTo(PacienteModel, { foreignKey: "id_paciente" });
-
-// Asociación entre Usuario y Predicciones (para el campo creado_por)
-UserModel.hasMany(PrediccionModel, { foreignKey: "creado_por" });
-PrediccionModel.belongsTo(UserModel, { foreignKey: "creado_por" });
-
-// Sincronizar los modelos con la base de datos
-db.sync({ alter: true })
-  .then(() => {
-    console.log('Modelos sincronizados con la base de datos');
-  })
-  .catch(error => {
-    console.error('Error al sincronizar los modelos:', error);
-  });
-
 // Exportar los modelos y la conexión a la base de datos
-export { db, UserModel, RoleModel, PacienteModel };
+export { db, UserModel, RoleModel, PacienteModel, PrediccionModel };

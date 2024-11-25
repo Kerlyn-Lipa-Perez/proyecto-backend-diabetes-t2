@@ -46,7 +46,7 @@ CREATE TABLE "Historia_Clinica_Paciente" IF NOT EXISTS (
 )
 
 
---version 2.0
+--version 3.0
 
 CREATE TABLE roles (
     id SERIAL PRIMARY KEY,
@@ -74,21 +74,21 @@ CREATE TABLE Pacientes (
     telefono VARCHAR(9),
     createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    DNI INTEGER,
     FOREIGN KEY (id_usuario) REFERENCES Usuarios (id) ON DELETE CASCADE
 );
 
 CREATE TABLE Historia_Clinica_Paciente (
     id SERIAL PRIMARY KEY,
     id_paciente INTEGER NOT NULL,
-    nivel_de_actividad_fisica VARCHAR(50),
-    habitos_alimenticios TEXT,
-    antecedente_familiar BOOLEAN,
-    alergias TEXT,
-    consumo_tabaco INTEGER,
-    frecuencia_tabaco INTEGER,
-    consumo_alcohol INTEGER,
+    glucosa FLOAT
+    insulina FLOAT,
+    colesterol_total INTEGER,
+    consumo_tabaco BOOLEAN,
+    duracion_fumar INTEGER,
+    consumo_alcohol BOOLEAN,
     frecuencia_alcohol INTEGER,
-    creado_por INTEGER,
+
     createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (id_paciente) REFERENCES Pacientes (id) ON DELETE CASCADE,
@@ -99,19 +99,17 @@ CREATE TABLE Predicciones (
     id SERIAL PRIMARY KEY,
     id_paciente INTEGER NOT NULL,
     fecha_prediccion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    IMC DECIMAL(5, 2),
+    IMC DECIMAL(10, 2),
     glucosa INTEGER,
     insulina INTEGER,
-    fuma BOOLEAN,
-    frecuencia_fumar BOOLEAN,
-    duracion_fumar INTEGER,
-    nivel_actividad_fisica BOOLEAN,
-    frecuencia_actividad_fisica VARCHAR(50),
-    consumo_alcohol BOOLEAN,
-    frecuencia_alcohol INTEGER,
-    puntaje_riesgo DECIMAL(5, 2),
-    nivel_riesgo VARCHAR(50),
+    puntaje_riesgo NUMERIC(10,2),
+    fecha_creacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     creado_por INTEGER,
+    embarazos INTEGER,
+    grosor_de_piel INTEGER,
+    presion_arterial NUMERIC(10),
+    fecha_nacimiento (DATE),
+
     FOREIGN KEY (id_paciente) REFERENCES Pacientes (id) ON DELETE CASCADE,
     FOREIGN KEY (creado_por) REFERENCES Usuarios (id) ON DELETE CASCADE
 );

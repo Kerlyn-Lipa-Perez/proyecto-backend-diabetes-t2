@@ -1,24 +1,69 @@
+import * as fs from "node:fs";
+import YDFInference from "ydf-inference";
+
+// Load the YDF library
+let ydf = await YDFInference();
+
 import PacienteModel from "../models/pacients.model.js";
-import jwt from "jsonwebtoken";
 import PrediccionModel from "../models/prediction.model.js";
+const calculateDiabetesRisk = (data) => {
+  const {
+    IMC,
+    glucosa,
+    insulina,
+    grosor_de_piel,
+    presion_arterial,
+    embarazos,
+  } = data;
 
-// ------------- METODOS CRUD -------------//
-export const AllPrediccionCtrl = async (req, res) => {
-  const { imc, glucosa, insulina, puntaje_riesgo, embarazos, grosor_de_piel, presion_arterial, fecha_de_nacimiento } = req.body;
+  let riskScore = 0;
 
+  // Weight factors for each parameter
+  if (glucosa > 140) riskScore += 30;
+  if (IMC > 30) riskScore += 20;
+  if (presion_arterial > 140) riskScore += 15;
+  if (insulina > 160) riskScore += 15;
+  if (grosor_de_piel > 35) riskScore += 10;
+  if (embarazos > 4) riskScore += 10;
+
+  // Normalize score to percentage
+  return Math.min(Math.max(riskScore, 0), 100);
+};
+
+export const createPrediction = async (req, res) => {
   try {
-    // Aquí se debería cargar el modelo y realizar la predicción
-    const prediction = model.predict([
-      [age, bmi, bloodPressure, ...otherFeatures],
-    ]);
-    // Devuelve solo el valor de la predicción
-    res.json({ diabetesRisk: prediction[0] });
+    const predictionData = req.body;
+    const riskScore = calculateDiabetesRisk(predictionData);
+
+    const prediction = await PrediccionModel.create({
+      ...predictionData,
+      puntaje_riesgo: riskScore,
+      creado_por: req.user.id,
+    });
+
+    res.status(201).json(prediction);
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error al predecir el riesgo de diabetes" });
+    res.status(500).json({ message: error.message });
   }
 };
 
+export const getPatientPredictions = async (req, res) => {
+  try {
+    const predictions = await PrediccionModel.findAll({
+      where: { id_paciente: req.params.patientId },
+      include: [
+        {
+          model: PacienteModel,
+          attributes: ["nombres", "apellidos", "DNI", "telefono", "genero"],
+        },
+      ],
+      order: [["fecha_prediccion", "DESC"]],
+    });
 
-export {AllPrediccionCtrl};
+    res.json(predictions);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export default {calculateDiabetesRisk,getPatientPredictions,createPrediction};

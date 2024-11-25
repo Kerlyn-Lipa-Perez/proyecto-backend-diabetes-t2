@@ -49,16 +49,16 @@ const Register = async (req, res) => {
 
     
     const generateNumericId = () => {
-      return Math.floor(Math.random() * 10000); // Cambia 1000000 a un valor mayor si necesitas un rango más amplio
+      return Math.floor(Math.random() * 10000);
     };
 
-    // Uso en tu código
+    // Generacion de ids
     const ids = generateNumericId();
 
     // const ids = crypto.randomUUID();
 
     // Generamos el "salt" para encriptar la contraseña
-    const saltos = genSaltSync(10); // Corrección: usamos genSaltSync
+    const saltos = genSaltSync(10);
     const hashedpassword = hashSync(password, saltos); // Encriptamos la contraseña
 
     /// Creamos el nuevo usuario en la base de datos
@@ -137,11 +137,13 @@ const Login = async (req, res) => {
     );
 
 
-    return res.send({
+    return res.json({
+      userId: usuario.id,
       email: usuario.email,
       password: usuario.password,
-      token
+      token,
     });
+    console.log(res);
 
   } catch (error) {
     console.log(error);
