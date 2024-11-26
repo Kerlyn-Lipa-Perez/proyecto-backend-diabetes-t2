@@ -1,8 +1,7 @@
 import * as fs from "node:fs";
 import YDFInference from "ydf-inference";
 
-// Load the YDF library
-let ydf = await YDFInference();
+
 
 import PacienteModel from "../models/pacients.model.js";
 import PrediccionModel from "../models/prediction.model.js";
@@ -47,10 +46,31 @@ export const createPrediction = async (req, res) => {
   }
 };
 
-export const getPatientPredictions = async (req, res) => {
+
+export const getAllPredictonsContoller = async (req, res) => {
   try {
     const predictions = await PrediccionModel.findAll({
-      where: { id_paciente: req.params.patientId },
+      where: { id_paciente: req.params.id },
+      include: [
+        {
+          model: PacienteModel,
+          attributes: ["nombres", "apellidos", "DNI", "telefono", "genero"],
+        },
+      ],
+      order: [["fecha_prediccion", "DESC"]],
+    });
+
+    res.status(200).json(predictions);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+
+export const FindPredictionByIdCtrl = async (req, res) => {
+  try {
+    const predictions = await PrediccionModel.findAll({
+      where: { id_paciente: req.params.id },
       include: [
         {
           model: PacienteModel,
@@ -66,4 +86,8 @@ export const getPatientPredictions = async (req, res) => {
   }
 };
 
-export default {calculateDiabetesRisk,getPatientPredictions,createPrediction};
+export default {
+  getAllPredictonsContoller,
+  FindPredictionByIdCtrl,
+  createPrediction,
+};

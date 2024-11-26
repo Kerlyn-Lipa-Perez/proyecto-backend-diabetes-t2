@@ -1,15 +1,18 @@
 import { Router } from "express";
 import {
-  createPrediction,
-  getPatientPredictions,
+  getAllPredictonsContoller,
+  FindPredictionByIdCtrl,
 } from "../controllers/prediction.controller.js";
 
 
 const predictionRouter = Router();
 
 
-predictionRouter.post("/", createPrediction);
-predictionRouter.get("/patient/:patientId", getPatientPredictions);
+
+predictionRouter.get("/", getAllPredictonsContoller);
+
+predictionRouter.get("/:id", FindPredictionByIdCtrl);
+
 
 
 export  {predictionRouter};

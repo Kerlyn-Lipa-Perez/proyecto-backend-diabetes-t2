@@ -251,17 +251,7 @@ export const CreatePacientesCtrl = async (req, res) => {
 };
 
 
-//POST /PACIENTES/HISTORIAL
-export const CreateHistoryPacientesCtrl = async (req, res) => {
- try{
 
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-
-
-
-};
 
 //GET PACIENTES/:id
 export const FindPacienteByIdCtrl = async (req, res) => {
@@ -285,24 +275,26 @@ export const FindPacienteByIdCtrl = async (req, res) => {
           attributes: [
             "fecha_prediccion",
             "puntaje_riesgo",
-            "imc",
             "glucosa",
             "insulina",
-            "fecha_creacion",
+            "imc",
+            "embarazos",  
+            "grosor_de_piel",
+            "presion_arterial", 
           ],
           order: [["fecha_prediccion", "DESC"]],
           include: [
             {
               model: UserModel,
               as: "creador",
-              attributes: ["username", "email"],
+              attributes: ["username", "email", "id"],
             },
           ],
         },
         {
           model: UserModel,
           as: "usuario",
-          attributes: ["username", "email"],
+          attributes: ["username", "email", "id"],
         },
       ],
     });
@@ -346,15 +338,180 @@ export const DeletePacienteByIdCtrl = async (req, res) => {
 
 //PATCH /PACIENTES/:id
 export const UpdatePacienteByIdCtrl = async (req, res) => {
+  // Iniciar transacción no administrada
+  const transaction = await db.startUnmanagedTransaction();
+
   try {
-    await PacienteModel.update(req.body, {
-      where: { id: req.params.id },
+    const { id } = req.params;
+    const {
+      userId,
+      nombres,
+      apellidos,
+      fecha_de_nacimiento,
+      genero,
+      telefono,
+      dni,
+      imc,
+      glucosa,
+      insulina,
+      embarazos,
+      grosor,
+      presion,
+      factor_hereditario,
+    } = req.body;
+
+    // Validación de campos requeridos
+    const camposRequeridos = {
+      userId,
+      nombres,
+      apellidos,
+      fecha_de_nacimiento,
+      genero,
+      telefono,
+      dni,
+      imc,
+      glucosa,
+      insulina,
+      grosor,
+      presion,
+      factor_hereditario,
+    };
+    console.log(camposRequeridos)
+
+    const camposFaltantes = Object.entries(camposRequeridos)
+      .filter(([_, value]) => !value)
+      .map(([key]) => key);
+
+    if (camposFaltantes.length > 0) {
+      await transaction.rollback();
+      return res.status(400).json({
+        message: `Faltan campos requeridos: ${camposFaltantes.join(", ")}`,
+        camposFaltantes,
+      });
+    }
+
+    // Validar fecha de nacimiento
+    const fechaNacimiento = new Date(fecha_de_nacimiento);
+    if (isNaN(fechaNacimiento)) {
+      await transaction.rollback();
+      return res
+        .status(400)
+        .json({ message: "El formato de la fecha de nacimiento es inválido" });
+    }
+    const fechaFormateada = fechaNacimiento.toISOString().split("T")[0];
+
+    // Calcular la edad y preparar los datos para la predicción
+    const datosPrediccion = {
+      Bmi: imc || 0,
+      Glucose: glucosa || 0,
+      Insulin: insulina || 0,
+      Pregnancies: Number(embarazos) || 0,
+      SkinThickness: grosor || 0,
+      BloodPressure: presion || 0,
+      Dpf: factor_hereditario || 0,
+      Age: calcularEdad(fechaNacimiento) || 0,
+    };
+
+    // Verificar valores NaN
+    const valoresInvalidos = Object.entries(datosPrediccion)
+      .filter(([_, value]) => Number.isNaN(value))
+      .map(([key]) => key);
+
+    if (valoresInvalidos.length > 0) {
+      await transaction.rollback();
+      return res.status(400).json({
+        message: `Valores numéricos inválidos detectados en: ${valoresInvalidos.join(
+          ", "
+        )}`,
+        valoresInvalidos,
+      });
+    }
+
+    // Actualizar el registro del paciente
+    const [updatedRowsCount] = await PacienteModel.update(
+      {
+        id_usuario: userId,
+        nombres,
+        apellidos,
+        fecha_nacimiento: fechaFormateada,
+        genero,
+        telefono: telefono?.toString(),
+        DNI: dni?.toString(),
+      },
+      {
+        where: { id },
+        transaction,
+      }
+    );
+
+    if (updatedRowsCount === 0) {
+      await transaction.rollback();
+      return res.status(404).json({ message: "Paciente no encontrado" });
+    }
+
+    // Llamada a la API de Flask para la predicción
+    let prediction;
+    try {
+      const flaskRespuesta = await axios.post(
+        "http://127.0.0.1:8000/predict",
+        datosPrediccion
+      );
+      prediction = flaskRespuesta.data.prediction;
+      console.log(prediction);
+    } catch (flaskError) {
+      await transaction.rollback();
+      return res.status(500).json({
+        message: "Error en el servicio de predicción",
+        error: flaskError.message,
+      });
+    }
+
+    // Calcular porcentaje de riesgo
+    const riskPercentage = calculateDiabetesRiskPercentage(
+      prediction,
+      datosPrediccion
+    );
+
+    // Eliminar predicciones anteriores para este paciente
+    await PrediccionModel.destroy({
+      where: { id_paciente: id },
+      transaction,
     });
-    res.json({
-      message: "Paciente actualizado correctamente.",
+
+    // Crear nuevo registro de predicción
+    const prediccion = await PrediccionModel.create(
+      {
+        id_paciente: id,
+        fecha_prediccion: new Date(),
+        imc: datosPrediccion.Bmi,
+        glucosa: datosPrediccion.Glucose,
+        insulina: datosPrediccion.Insulin,
+        puntaje_riesgo: riskPercentage,
+        fecha_creacion: new Date(),
+        creado_por: userId,
+        embarazos: datosPrediccion.Pregnancies,
+        grosor_de_piel: datosPrediccion.SkinThickness,
+        presion_arterial: datosPrediccion.BloodPressure,
+        fecha_de_nacimiento: fechaFormateada,
+      },
+      { transaction }
+    );
+
+    // Si todo sale bien, confirmar la transacción
+    await transaction.commit();
+
+    return res.status(200).json({
+      message: "Paciente y predicción actualizados correctamente",
+      paciente: { id, ...req.body },
+      prediccion,
     });
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ message: "Error al actualizar paciente." });
+    // En caso de error, revertir la transacción
+    await transaction.rollback();
+    console.error("Error detallado:", error);
+    return res.status(500).json({
+      message: "Error al procesar la solicitud de actualización",
+      error: error.message,
+    });
   }
 };
